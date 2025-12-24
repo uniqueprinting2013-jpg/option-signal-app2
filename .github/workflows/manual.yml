@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK (Debug)
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
     - name: Checkout repo
@@ -15,12 +16,29 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt update
-        sudo apt install -y python3-pip openjdk-17-jdk zip unzip git
-        pip3 install --upgrade buildozer cython
+        sudo apt install -y \
+          python3-pip \
+          openjdk-17-jdk \
+          zip unzip git \
+          autoconf automake libtool \
+          pkg-config \
+          zlib1g-dev \
+          libncurses5 \
+          libffi-dev \
+          libssl-dev
 
-    - name: Build APK
+    - name: Install Buildozer & Cython
       run: |
-        buildozer android debug
+        pip3 install --upgrade pip
+        pip3 install --upgrade buildozer cython virtualenv
+
+    - name: Show buildozer version
+      run: |
+        buildozer --version
+
+    - name: Build APK (verbose)
+      run: |
+        buildozer -v android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
